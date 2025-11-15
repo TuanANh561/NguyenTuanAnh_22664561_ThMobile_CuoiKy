@@ -34,3 +34,17 @@ export const toggleDone = async (db: SQLiteDatabase, id: number) => {
     [id]
   );
 };
+
+export const getById = async (db: SQLiteDatabase, id: number) => {
+  return await db.getFirstAsync<Habit>(
+    `SELECT * FROM habits WHERE id = ?`,
+    [id]
+  );
+};
+
+export const updateHabit = async (db: SQLiteDatabase, data: Habit) => {
+  await db.runAsync(
+    `UPDATE habits SET title = ?, description = ?, done_today = ? WHERE id = ?`,
+    [data.title, data.description || "", data.done_today ? 1 : 0, data.id]
+  );
+};

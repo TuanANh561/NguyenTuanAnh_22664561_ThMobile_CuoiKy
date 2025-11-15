@@ -1,16 +1,30 @@
+// app/form.tsx
 import { View, Text } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, TextInput } from "react-native-paper";
 import { useSQLiteContext } from "expo-sqlite";
-import { useRouter } from "expo-router";
-import { saveHabit } from "@/db";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { getById, saveHabit, updateHabit } from "@/db";
+import { Habit } from "@/types/habit";
 
 const FormScreen = () => {
   const db = useSQLiteContext();
   const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    if (id) {
+      getById(db, Number(id)).then((habit) => {
+        if (habit) {
+          setTitle(habit.title);
+          setDescription(habit.description || "");
+        }
+      });
+    }
+  }, [id]);
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -18,15 +32,25 @@ const FormScreen = () => {
       return;
     }
 
-    await saveHabit(db, { title, description });
-    router.back(); 
+    if (id) {
+      await updateHabit(db, {
+        id: Number(id),
+        title,
+        description,
+        done_today: true,
+        active: false,
+      });
+    } else {
+      await saveHabit(db, { title, description });
+    }
+    router.back();
   };
 
   return (
     <View className="flex-1 items-center justify-center p-4 bg-gray-50">
       <View className="w-full max-w-md">
         <Text className="text-2xl font-bold text-center mb-6 text-blue-600">
-          Thêm thói quen mới
+          {id ? "Sửa thói quen" : "Thêm thói quen mới"}
         </Text>
 
         <TextInput
