@@ -27,3 +27,10 @@ export const saveHabit = async (db: SQLiteDatabase, data: Partial<Habit>) => {
     [data.title, data.description || "", Date.now()]
   );
 };
+
+export const toggleDone = async (db: SQLiteDatabase, id: number) => {
+  await db.runAsync(
+    `UPDATE habits SET done_today = 1 - done_today WHERE id = ?`,
+    [id]
+  );
+};

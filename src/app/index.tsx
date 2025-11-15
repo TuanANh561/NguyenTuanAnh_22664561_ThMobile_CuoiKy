@@ -2,7 +2,7 @@ import { View, Text, FlatList } from "react-native";
 import React, { useCallback, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { Habit } from "@/types/habit";
-import { getAll } from "@/db";
+import { getAll, toggleDone } from "@/db"; 
 import { useFocusEffect, useRouter } from "expo-router";
 import { Button } from "react-native-paper";
 import HabitItem from "@/components/HabitItem";
@@ -15,6 +15,11 @@ const HomeScreen = () => {
   const loadHabits = async () => {
     const data = await getAll(db, 1);
     setHabits(data);
+  };
+
+  const handleToggle = async (id: number) => {
+    await toggleDone(db, id);
+    loadHabits();
   };
 
   useFocusEffect(
@@ -41,15 +46,21 @@ const HomeScreen = () => {
       <FlatList
         data={habits}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <HabitItem item={item} />}
+        renderItem={({ item }) => (
+          <HabitItem item={item} onToggle={handleToggle} />
+        )}
         ListEmptyComponent={
-          <View className="p-6 items-center mt-8">
+          <View className="flex-1 justify-center items-center p-6 mt-10">
             <Text className="text-lg text-gray-500 text-center">
               Chưa có thói quen nào, hãy thêm một thói quen mới!
             </Text>
           </View>
         }
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: 20,
+        }}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
