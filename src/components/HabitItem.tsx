@@ -1,16 +1,33 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import React from "react";
 import { Habit } from "@/types/habit";
+import { Alert } from "react-native";
 import { Button, Card, IconButton } from "react-native-paper";
 import { useRouter } from "expo-router";
 
 type Props = {
   item: Habit;
   onToggle: (id: number) => void;
+  onDelete: (id: number) => void;
 };
 
-const HabitItem = ({ item, onToggle }: Props) => {
+const HabitItem = ({ item, onToggle, onDelete }: Props) => {
   const router = useRouter();
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Xác nhận xóa",
+      `Bạn có chắc muốn xóa thói quen "${item.title}"?`,
+      [
+        { text: "Hủy", style: "cancel" },
+        {
+          text: "Xóa",
+          style: "destructive",
+          onPress: () => onDelete(item.id),
+        },
+      ]
+    );
+  };
 
   return (
     <View className="my-2 mx-2">
@@ -49,7 +66,7 @@ const HabitItem = ({ item, onToggle }: Props) => {
             Edit
           </Button>
 
-          <Button mode="contained" className="bg-red-600">
+          <Button mode="contained" onPress={handleDelete} className="bg-red-600">
             Delete
           </Button>
         </Card.Actions>

@@ -48,3 +48,7 @@ export const updateHabit = async (db: SQLiteDatabase, data: Habit) => {
     [data.title, data.description || "", data.done_today ? 1 : 0, data.id]
   );
 };
+
+export const deleteHabit = async (db: SQLiteDatabase, id: number) => {
+  await db.runAsync(`UPDATE habits SET active = 0 WHERE id = ?`, [id]);
+};

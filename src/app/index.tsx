@@ -2,7 +2,7 @@ import { View, Text, FlatList } from "react-native";
 import React, { useCallback, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { Habit } from "@/types/habit";
-import { getAll, toggleDone } from "@/db"; 
+import { getAll, toggleDone, deleteHabit } from "@/db";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Button } from "react-native-paper";
 import HabitItem from "@/components/HabitItem";
@@ -19,6 +19,11 @@ const HomeScreen = () => {
 
   const handleToggle = async (id: number) => {
     await toggleDone(db, id);
+    loadHabits();
+  };
+
+  const handleDelete = async (id: number) => {
+    await deleteHabit(db, id);
     loadHabits();
   };
 
@@ -47,7 +52,11 @@ const HomeScreen = () => {
         data={habits}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <HabitItem item={item} onToggle={handleToggle} />
+          <HabitItem
+            item={item}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+          />
         )}
         ListEmptyComponent={
           <View className="flex-1 justify-center items-center p-6 mt-10">
