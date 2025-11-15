@@ -20,3 +20,10 @@ export const getAll = async (db: SQLiteDatabase, active: number) => {
     [active]
   );
 };
+
+export const saveHabit = async (db: SQLiteDatabase, data: Partial<Habit>) => {
+  await db.runAsync(
+    `INSERT INTO habits (title, description, created_at) VALUES (?, ?, ?)`,
+    [data.title, data.description || "", Date.now()]
+  );
+};
