@@ -1,5 +1,5 @@
-import { View, Text, FlatList } from "react-native";
-import React, { useCallback, useState } from "react";
+import { View, Text, FlatList, TextInput } from "react-native";
+import React, { useCallback, useMemo, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { Habit } from "@/types/habit";
 import { getAll, toggleDone, deleteHabit } from "@/db";
@@ -11,6 +11,7 @@ const HomeScreen = () => {
   const db = useSQLiteContext();
   const router = useRouter();
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const loadHabits = async () => {
     const data = await getAll(db, 1);
@@ -33,6 +34,14 @@ const HomeScreen = () => {
     }, [])
   );
 
+  const filteredHabits = useMemo(() => {
+    if (!searchQuery.trim()) return habits;
+    const query = searchQuery.toLowerCase();
+    return habits.filter((habit) =>
+      habit.title.toLowerCase().includes(query)
+    );
+  }, [habits, searchQuery]);
+
   return (
     <View className="flex-1 bg-gray-50">
       <View className="p-4 bg-white border-b border-gray-200">
@@ -46,10 +55,18 @@ const HomeScreen = () => {
         >
           Thêm thói quen mới
         </Button>
+
+        <TextInput
+          placeholder="Tìm kiếm theo tiêu đề..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          className="mt-3 bg-gray-100 rounded-md px-3 py-2 text-base"
+          clearButtonMode="while-editing"
+        />
       </View>
 
       <FlatList
-        data={habits}
+        data={filteredHabits}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <HabitItem
@@ -61,7 +78,9 @@ const HomeScreen = () => {
         ListEmptyComponent={
           <View className="flex-1 justify-center items-center p-6 mt-10">
             <Text className="text-lg text-gray-500 text-center">
-              Chưa có thói quen nào, hãy thêm một thói quen mới!
+              {searchQuery
+                ? "Không tìm thấy thói quen nào."
+                : "Chưa có thói quen nào, hãy thêm một thói quen mới!"}
             </Text>
           </View>
         }
