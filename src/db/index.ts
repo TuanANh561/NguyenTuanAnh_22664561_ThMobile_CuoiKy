@@ -11,4 +11,25 @@ export const initTable = async (db: SQLiteDatabase) => {
             created_at INTEGER
         )
         `)
+
+    const result = await db.getAllAsync<{ count: number }>(
+    "SELECT COUNT(*) as count FROM habits"
+    )
+
+    if (result[0].count === 0) {
+    await db.runAsync(
+        `INSERT INTO habits (title, description, created_at) VALUES 
+        (?, ?, ?),
+        (?, ?, ?),
+        (?, ?, ?)
+        `,
+        [
+        "Uống 2 lít nước", "Nhắc nhở uống nước mỗi ngày", Date.now(),
+        "Đi bộ 15 phút", "Đi bộ nhẹ cải thiện sức khỏe", Date.now(),
+        "Đọc sách 10 phút", "Thói quen đọc sách buổi tối", Date.now()
+        ]
+    )
+    }
+
 }
+
